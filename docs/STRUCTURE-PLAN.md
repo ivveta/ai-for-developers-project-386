@@ -27,7 +27,7 @@ ai-for-developers-project-386/
 ├── api/                         # пакет @calendar/api-contract — единственный источник правды об API
 │   ├── main.tsp                 # @service/@server, импорты
 │   ├── models.tsp               # EventType, Booking, Slot, Error; duration: целое 1–540
-│   ├── routes/event-types.tsp   # GET/POST /api/event-types, GET /{id}, GET /{id}/slots
+│   ├── routes/event-types.tsp   # GET/POST /api/event-types, GET /{id}/slots
 │   ├── routes/bookings.tsp      # POST /api/bookings, GET /api/bookings?upcoming=
 │   ├── tspconfig.yaml           # эмиттер openapi3 → openapi/openapi.yaml
 │   ├── openapi/openapi.yaml     # артефакт генерации, коммитится

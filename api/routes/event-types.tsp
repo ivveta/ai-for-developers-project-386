@@ -68,29 +68,6 @@ interface EventTypes {
   create(@body body: EventTypeCreate): CreatedResponse<EventType> | ValidationFailed | EventTypeIdTaken;
 
   /**
-   * Один тип события (§8.4).
-   * Ошибки: 404 not_found.
-   */
-  @get
-  @route("/{id}")
-  @opExample(
-    #{
-      parameters: #{ id: "meeting-15" },
-      returnType: #{
-        data: #{
-          id: "meeting-15",
-          title: "Встреча 15 минут",
-          description: "Короткий тип события для быстрого слота.",
-          durationMinutes: 15,
-          createdAt: offsetDateTime.fromISO("2026-03-01T12:00:00+03:00"),
-        },
-      },
-    },
-    #{ title: "Тип события (§8.4)" }
-  )
-  getById(@path id: string): DataResponse<EventType> | NotFound;
-
-  /**
    * Слоты типа события на всё окно записи: 14 дней, начиная с текущей даты (§8.5, §5.2).
    * Ответ справочный и может устареть к моменту отправки формы — клиент обязан
    * обработать 409 при бронировании (§5.4).
