@@ -28,7 +28,7 @@ ai-for-developers-project-386/
 │   ├── main.tsp                 # @service/@server, импорты
 │   ├── models.tsp               # EventType, Booking, Slot, Error; duration: целое 1–540
 │   ├── routes/event-types.tsp   # GET/POST /api/event-types, GET /{id}/slots
-│   ├── routes/bookings.tsp      # POST /api/bookings, GET /api/bookings?upcoming=
+│   ├── routes/bookings.tsp      # POST /api/bookings, GET /api/bookings
 │   ├── tspconfig.yaml           # эмиттер openapi3 → openapi/openapi.yaml
 │   ├── openapi/openapi.yaml     # артефакт генерации, коммитится
 │   └── types/schema.d.ts        # типы из openapi-typescript, экспортируются пакетом

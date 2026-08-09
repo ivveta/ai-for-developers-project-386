@@ -50,14 +50,13 @@ interface Bookings {
   create(@body body: BookingCreate): CreatedResponse<Booking> | ValidationFailed | NotFound | SlotTaken | OutOfWindow;
 
   /**
-   * Список бронирований (§8.7, сценарий С5).
-   * Сортировка по startAt по возрастанию. `upcoming=true` (по умолчанию) —
-   * только встречи, которые ещё не начались (§7.9).
+   * Список предстоящих бронирований (§8.7, сценарий С5).
+   * Параметров нет: возвращаются только встречи, которые ещё не начались (§7.9).
+   * Сортировка по startAt по возрастанию.
    */
   @get
   @opExample(
     #{
-      parameters: #{ upcoming: true },
       returnType: #{
         data: #[
           #{
@@ -75,8 +74,5 @@ interface Bookings {
     },
     #{ title: "Предстоящие встречи (§8.7)" }
   )
-  list(
-    /** true — только встречи, которые ещё не начались */
-    @query upcoming?: boolean = true,
-  ): DataResponse<Booking[]>;
+  list(): DataResponse<Booking[]>;
 }
