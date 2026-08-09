@@ -8,10 +8,10 @@ HTTP-контракт, правила валидации и критерии п�
 
 Источники требований:
 
-- [`project-description.md`](./project-description.md) — исходное описание задачи;
-- [`01-home.png`](./01-home.png) — главная страница;
-- [`02-book-catalog.png`](./02-book-catalog.png) — каталог типов событий;
-- [`03-book-event-type.png`](./03-book-event-type.png) — выбор даты и слота.
+- [`project-description.md`](../task/project-description.md) — исходное описание задачи;
+- [`01-home.png`](../task/01-home.png) — главная страница;
+- [`02-book-catalog.png`](../task/02-book-catalog.png) — каталог типов событий;
+- [`03-book-event-type.png`](../task/03-book-event-type.png) — выбор даты и слота.
 
 ---
 
