@@ -13,14 +13,13 @@ namespace Calendar;
 @pattern("^[a-z0-9-]{1,64}$")
 scalar EventTypeId extends string;
 
-/** Длительность встречи в минутах, она же — шаг сетки слотов (Р1, Р2, И2). */
-union DurationMinutes {
-  /** 15 минут */
-  fifteen: 15,
-
-  /** 30 минут */
-  thirty: 30,
-}
+/**
+ * Длительность встречи в минутах, она же — шаг сетки слотов (Р1, Р2, И2).
+ * Произвольная: целое от 1 до 540 (540 минут — длина рабочего дня 09:00–18:00).
+ */
+@minValue(1)
+@maxValue(540)
+scalar DurationMinutes extends int32;
 
 // ---------- Тип события (§4.2) ----------
 
@@ -68,7 +67,7 @@ model EventTypeCreate {
   @maxLength(500)
   description: string;
 
-  /** Длительность: 15 или 30 минут (Р1) */
+  /** Длительность в минутах: целое от 1 до 540 (Р1) */
   durationMinutes: DurationMinutes;
 }
 

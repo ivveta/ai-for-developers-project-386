@@ -26,7 +26,7 @@ ai-for-developers-project-386/
 │
 ├── api/                         # пакет @calendar/api-contract — единственный источник правды об API
 │   ├── main.tsp                 # @service/@server, импорты
-│   ├── models.tsp               # EventType, Booking, Slot, Error; duration: 15 | 30
+│   ├── models.tsp               # EventType, Booking, Slot, Error; duration: целое 1–540
 │   ├── routes/event-types.tsp   # GET/POST /api/event-types, GET /{id}, GET /{id}/slots
 │   ├── routes/bookings.tsp      # POST /api/bookings, GET /api/bookings?upcoming=
 │   ├── tspconfig.yaml           # эмиттер openapi3 → openapi/openapi.yaml
@@ -66,7 +66,7 @@ ai-for-developers-project-386/
    без ручных блокировок. Плюс индексы: unique на `event_type.id`, btree на `booking.start_at` (§4.6).
 3. **Слоты — чистая функция** `(eventType, date, now, bookings) → { slots, freeCount }` в
    `domain/`. Не знает про HTTP и SQL; покрывается юнит-тестами, дословно повторяющими критерии
-   B1–B5 и C1–C4.
+   B1–B6 и C1–C4.
 4. **Время**: хранение в `timestamptz` (UTC), преобразование в `Europe/Moscow` на границах
    (сериализация ответов, отображение). `Clock` как зависимость сервисов — в тестах «сейчас»
    фиксируется (спека оперирует конкретными моментами вроде «31 марта, 11:20»).
@@ -87,7 +87,7 @@ ai-for-developers-project-386/
 2. **`api/`**: модели и операции в TypeSpec дословно по §8 (включая формат ошибок §8.8 и примеры)
    → компиляция → типы.
 3. **`backend/`**: миграция + seed → `domain/slots` + юнит-тесты (B*, C1–C4) → сервисы и HTTP →
-   интеграционные тесты против тестовой БД из docker-compose (A1–A5, C5, D1–D8, E1–E3).
+    интеграционные тесты против тестовой БД из docker-compose (A1–A6, C5, D1–D8, E1–E3).
 4. **`frontend/`**: клиент из контракта → 8 страниц по §7 → тесты F1–F5 на testing-library.
 5. **Финал**: прод-сборка (бэк раздаёт `frontend/dist`), полный прогон, обновление `README.md` и
    `AGENTS.md` (структура, команды).
@@ -96,8 +96,8 @@ ai-for-developers-project-386/
 
 | Критерии | Где проверяются |
 |---|---|
-| A1–A5 (типы событий) | Интеграционные тесты `POST /api/event-types` |
-| B1–B5 (сетка, окно) | Юнит-тесты `domain/slots` с фиксированным `Clock` |
+| A1–A6 (типы событий) | Интеграционные тесты `POST /api/event-types` |
+| B1–B6 (сетка, окно) | Юнит-тесты `domain/slots` с фиксированным `Clock` |
 | C1–C5 (занятость, гонка) | Юнит C1–C4; C5 — интеграционный: два параллельных `POST` → ровно один 201 |
 | D1–D8, E1–E3 | Интеграционные API-тесты |
 | F1–F5 (интерфейс) | Тесты фронта на testing-library |
