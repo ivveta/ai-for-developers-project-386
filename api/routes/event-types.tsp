@@ -91,58 +91,69 @@ interface EventTypes {
   getById(@path id: string): DataResponse<EventType> | NotFound;
 
   /**
-   * Слоты типа события на дату (§8.5). Ответ справочный и может устареть
-   * к моменту отправки формы — клиент обязан обработать 409 при бронировании (§5.4).
-   * Из выдачи исключены слоты с началом в прошлом (Р8) и вне окна записи (Р6);
-   * дата вне окна даёт пустой `slots`, а не ошибку (§5.5).
-   * Ошибки: 400 validation_error (некорректный формат `date`), 404 not_found.
+   * Слоты типа события на всё окно записи: 14 дней, начиная с текущей даты (§8.5, §5.2).
+   * Ответ справочный и может устареть к моменту отправки формы — клиент обязан
+   * обработать 409 при бронировании (§5.4).
+   * Из выдачи исключены слоты с началом в прошлом (Р8); дней вне окна в ответе нет (Р6).
+   * Ошибки: 404 not_found.
    */
   @get
   @route("/{id}/slots")
   @opExample(
     #{
-      parameters: #{ id: "meeting-15", date: plainDate.fromISO("2026-03-31") },
+      parameters: #{ id: "meeting-15" },
       returnType: #{
         data: #{
           eventTypeId: "meeting-15",
-          date: plainDate.fromISO("2026-03-31"),
           durationMinutes: 15,
-          freeCount: 33,
-          slots: #[
+          days: #[
             #{
-              start: offsetDateTime.fromISO("2026-03-31T09:00:00+03:00"),
-              end: offsetDateTime.fromISO("2026-03-31T09:15:00+03:00"),
-              status: SlotStatus.busy,
+              date: plainDate.fromISO("2026-03-31"),
+              freeCount: 33,
+              slots: #[
+                #{
+                  start: offsetDateTime.fromISO("2026-03-31T09:00:00+03:00"),
+                  end: offsetDateTime.fromISO("2026-03-31T09:15:00+03:00"),
+                  status: SlotStatus.busy,
+                },
+                #{
+                  start: offsetDateTime.fromISO("2026-03-31T09:15:00+03:00"),
+                  end: offsetDateTime.fromISO("2026-03-31T09:30:00+03:00"),
+                  status: SlotStatus.busy,
+                },
+                #{
+                  start: offsetDateTime.fromISO("2026-03-31T09:30:00+03:00"),
+                  end: offsetDateTime.fromISO("2026-03-31T09:45:00+03:00"),
+                  status: SlotStatus.busy,
+                },
+                #{
+                  start: offsetDateTime.fromISO("2026-03-31T09:45:00+03:00"),
+                  end: offsetDateTime.fromISO("2026-03-31T10:00:00+03:00"),
+                  status: SlotStatus.free,
+                },
+                #{
+                  start: offsetDateTime.fromISO("2026-03-31T10:00:00+03:00"),
+                  end: offsetDateTime.fromISO("2026-03-31T10:15:00+03:00"),
+                  status: SlotStatus.free,
+                },
+              ],
             },
             #{
-              start: offsetDateTime.fromISO("2026-03-31T09:15:00+03:00"),
-              end: offsetDateTime.fromISO("2026-03-31T09:30:00+03:00"),
-              status: SlotStatus.busy,
-            },
-            #{
-              start: offsetDateTime.fromISO("2026-03-31T09:30:00+03:00"),
-              end: offsetDateTime.fromISO("2026-03-31T09:45:00+03:00"),
-              status: SlotStatus.busy,
-            },
-            #{
-              start: offsetDateTime.fromISO("2026-03-31T09:45:00+03:00"),
-              end: offsetDateTime.fromISO("2026-03-31T10:00:00+03:00"),
-              status: SlotStatus.free,
-            },
-            #{
-              start: offsetDateTime.fromISO("2026-03-31T10:00:00+03:00"),
-              end: offsetDateTime.fromISO("2026-03-31T10:15:00+03:00"),
-              status: SlotStatus.free,
+              date: plainDate.fromISO("2026-04-01"),
+              freeCount: 36,
+              slots: #[
+                #{
+                  start: offsetDateTime.fromISO("2026-04-01T09:00:00+03:00"),
+                  end: offsetDateTime.fromISO("2026-04-01T09:15:00+03:00"),
+                  status: SlotStatus.free,
+                },
+              ],
             },
           ],
         },
       },
     },
-    #{ title: "Слоты на 31 марта, первые три перекрыты бронями (§8.5)" }
+    #{ title: "Фрагмент окна: 31 марта — первые три слота перекрыты бронями (§8.5)" }
   )
-  slots(
-    @path id: string,
-    /** Дата в таймзоне Europe/Moscow, YYYY-MM-DD */
-    @query date: plainDate,
-  ): DataResponse<DaySlots> | ValidationFailed | NotFound;
+  slots(@path id: string): DataResponse<WindowSlots> | NotFound;
 }
