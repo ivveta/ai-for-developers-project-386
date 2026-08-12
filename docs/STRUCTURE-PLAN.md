@@ -13,7 +13,8 @@
 | Бэкенд | Node.js 22 + TypeScript, Fastify | Лёгкий фреймворк, валидация JSON Schema из коробки; NestJS для 6 эндпоинтов избыточен |
 | Доступ к данным | `pg` + `node-pg-migrate` | 2 таблицы, ~5 запросов; exclusion constraint пишется прямо в SQL-миграции |
 | БД | PostgreSQL 16 в docker-compose | `EXCLUDE USING gist` на `tstzrange` — буквальное выполнение И5 из §4.6 |
-| Фронтенд | React + Vite + TS + React Router, SPA | SEO не нужен; в проде бэкенд раздаёт статику — один сервис для облачного деплоя |
+| Фронтенд | React + Vite + TS + React Router + Mantine, SPA | SEO не нужен; Mantine — UI-библиотека из рекомендаций ТЗ; в проде бэкенд раздаёт статику — один сервис для облачного деплоя |
+| Мок API | Prism (`@stoplight/prism-cli`) | Мок-сервер поднимается из `openapi/openapi.yaml` одной командой — рекомендация ТЗ «работа с API по контракту во время разработки» |
 | Тесты | Vitest (unit + integration) | Один раннер на весь монорепозиторий |
 
 ## Структура каталогов
@@ -48,10 +49,11 @@ ai-for-developers-project-386/
 │
 └── frontend/
     └── src/
-        ├── api/client.ts        # openapi-fetch, типизированный типами из @calendar/api-contract
+        ├── api/client.ts        # openapi-fetch, типизированный типами из @calendar/api-contract;
+        │                        #   base URL из VITE_API_URL (dev: Prism :4010 или бэкенд :3000)
         ├── pages/               # 8 маршрутов §7.1: Home, BookCatalog, BookEventType, Confirm, Success,
         │                        #   AdminEventTypes, AdminEventTypeNew, AdminBookings
-        ├── components/          # Header (шапка §7.2), Calendar (§7.5), SlotPanel, формы
+        ├── components/          # Header (шапка §7.2), Calendar (§7.5), SlotPanel, формы — на Mantine
         └── lib/format.ts        # форматы §7.11 («вторник, 31 марта», «36 св.») через Intl + Europe/Moscow
 ```
 
@@ -78,16 +80,24 @@ ai-for-developers-project-386/
    «Этот слот только что заняли…» и возврат на выбор слота с перезапросом; `404` типа — экран
    «Тип события не найден» (§7.10). Счётчики «N св.» и слоты календаря — один запрос `slots`,
    возвращающий всё окно (14 дней); эндпоинт спекой зафиксирован window-based (§8.5).
+8. **Фронт — отдельная часть приложения, обмен только через API по контракту**: base URL задаётся
+   `VITE_API_URL` — в dev это мок-сервер Prism (`http://localhost:4010`) или отдельно запущенный
+   бэкенд (`http://localhost:3000`; на Fastify включаем CORS), в проде — тот же origin. Самописного
+   мок-слоя на фронте нет: до готовности бэкенда ответы даёт Prism из примеров `openapi.yaml`.
 
 ## Порядок реализации
 
-1. **Каркас монорепо**: workspaces, общий `tsconfig.base.json`, eslint/prettier, docker-compose,
-   корневые скрипты (`dev`, `build`, `test`, `lint`, `contract:check`).
-2. **`api/`**: модели и операции в TypeSpec дословно по §8 (включая формат ошибок §8.8 и примеры)
-   → компиляция → типы.
-3. **`backend/`**: миграция + seed → `domain/slots` + юнит-тесты (B*, C1–C4) → сервисы и HTTP →
+1. **Каркас монорепо** (выполнено на шаге 0 [FRONTEND-PLAN](./FRONTEND-PLAN.md)): workspaces
+   (`api`, `frontend`), общий `tsconfig.base.json`, корневые скрипты (`dev`, `build`, `test`,
+   `contract`). eslint/prettier и docker-compose добавятся вместе с фронтом и бэкендом.
+2. **`api/`** (выполнено): модели и операции в TypeSpec дословно по §8 (включая формат ошибок §8.8
+   и примеры) → компиляция → типы. Артефакты `openapi/openapi.yaml` и `types/schema.d.ts`
+   генерируются скриптом `build` пакета `@calendar/api-contract` (корневой `npm run contract`).
+3. **`frontend/`** — делается до бэкенда, против мок-сервера Prism (решение и шаги —
+   [FRONTEND-PLAN](./FRONTEND-PLAN.md)): клиент из контракта → 8 страниц по §7 → тесты F1–F5 на
+   testing-library.
+4. **`backend/`**: миграция + seed → `domain/slots` + юнит-тесты (B*, C1–C4) → сервисы и HTTP →
     интеграционные тесты против тестовой БД из docker-compose (A1–A6, C5, D1–D8, E1–E3).
-4. **`frontend/`**: клиент из контракта → 8 страниц по §7 → тесты F1–F5 на testing-library.
 5. **Финал**: прод-сборка (бэк раздаёт `frontend/dist`), полный прогон, обновление `README.md` и
    `AGENTS.md` (структура, команды).
 
