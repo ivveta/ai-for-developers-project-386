@@ -1,0 +1,14 @@
+{
+  "name": "calendar",
+  "private": true,
+  "workspaces": [
+    "api",
+    "frontend"
+  ],
+  "scripts": {
+    "contract": "npm run build -w @calendar/api-contract",
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  }
+}

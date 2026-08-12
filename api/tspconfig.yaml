@@ -1,0 +1,10 @@
+# Эмиттер OpenAPI 3: артефакт коммитится в api/openapi/openapi.yaml (STRUCTURE-PLAN.md).
+output-dir: "{project-root}/openapi"
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    # По умолчанию эмиттер добавляет подкаталог с именем пакета — переопределяем,
+    # чтобы артефакт ложился ровно в openapi/openapi.yaml.
+    emitter-output-dir: "{output-dir}"
+    output-file: "openapi.yaml"

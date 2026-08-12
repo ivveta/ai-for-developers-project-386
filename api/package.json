@@ -1,0 +1,23 @@
+{
+  "name": "@calendar/api-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "types": "./types/schema.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/schema.d.ts"
+    }
+  },
+  "scripts": {
+    "compile": "tsp compile .",
+    "gen:types": "openapi-typescript openapi/openapi.yaml -o types/schema.d.ts",
+    "build": "npm run compile && npm run gen:types"
+  },
+  "devDependencies": {
+    "@typespec/compiler": "^1.14.0",
+    "@typespec/http": "^1.14.0",
+    "@typespec/openapi3": "^1.14.0",
+    "openapi-typescript": "^7.13.0"
+  }
+}
