@@ -7,8 +7,12 @@
   ],
   "scripts": {
     "contract": "npm run build -w @calendar/api-contract",
+    "mock": "prism mock api/openapi/openapi.yaml -p 4010",
     "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@stoplight/prism-cli": "^5.16.0"
   }
 }
