@@ -34,6 +34,16 @@ export function formatMonthLabel(monthStartUtc: Date): string {
   }).format(monthStartUtc);
 }
 
+/** Дата момента (ISO со смещением): «31 марта 2026 г.» — для createdAt в админке. */
+export function formatDate(iso: string): string {
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: MSK_TIMEZONE,
+  }).format(new Date(iso));
+}
+
 /** Время момента (ISO со смещением): «09:00». */
 export function formatTime(iso: string): string {
   return new Intl.DateTimeFormat('ru-RU', {
