@@ -65,6 +65,33 @@ interface EventTypes {
     },
     #{ title: "Создание типа события (§8.3)" }
   )
+  @opExample(
+    #{
+      returnType: #{
+        statusCode: 400,
+        error: #{
+          code: "validation_error",
+          message: "Проверьте правильность заполнения полей",
+          details: #[
+            #{ field: "durationMinutes", message: "Длительность — целое число от 1 до 540 минут" },
+          ],
+        },
+      },
+    },
+    #{ title: "Ошибка валидации (§8.8, §9.1)" }
+  )
+  @opExample(
+    #{
+      returnType: #{
+        statusCode: 409,
+        error: #{
+          code: "event_type_id_taken",
+          message: "Тип события с таким идентификатором уже существует",
+        },
+      },
+    },
+    #{ title: "Идентификатор занят (§9.1, И1)" }
+  )
   create(@body body: EventTypeCreate): CreatedResponse<EventType> | ValidationFailed | EventTypeIdTaken;
 
   /**

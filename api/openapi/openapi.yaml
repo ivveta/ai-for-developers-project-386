@@ -1,0 +1,725 @@
+openapi: 3.0.0
+info:
+  title: Calendar API
+  description: |-
+    «Календарь звонков» — сервис бронирования времени на созвоны.
+    Контракт зафиксирован в docs/SPECIFICATION.md (§8); доменная модель — в docs/DOMAIN-MODEL.md.
+  version: 0.0.0
+tags:
+  - name: Типы событий
+  - name: Бронирования
+paths:
+  /api/bookings:
+    post:
+      operationId: Bookings_create
+      description: |-
+        Создать бронирование (§8.6, сценарий С3).
+
+        Порядок проверок (§9.3), первая сработавшая определяет ответ:
+        1. формат и обязательность полей → 400 validation_error;
+        2. существование типа события → 404 not_found;
+        3. выравнивание по сетке и рамки рабочего дня (И6, И7) → 400 validation_error;
+        4. не в прошлом и в пределах 14-дневного окна → 422 out_of_window;
+        5. пересечение с существующими бронями (И5), атомарно со вставкой (§5.4) → 409 slot_taken.
+      parameters: []
+      responses:
+        '201':
+          description: 'Успешное создание: 201 + конверт `{ data: ... }` (§8).'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Booking'
+                description: 'Успешное создание: 201 + конверт `{ data: ... }` (§8).'
+              examples:
+                Создание брони (§8.6):
+                  summary: Создание брони (§8.6)
+                  value:
+                    data:
+                      id: 6b1c2f4e-9a3d-4c77-9b6c-2f0d5a8e1b34
+                      eventType:
+                        id: meeting-15
+                        title: Встреча 15 минут
+                        durationMinutes: 15
+                      startAt: '2026-04-01T10:00:00+03:00'
+                      endAt: '2026-04-01T10:15:00+03:00'
+                      guestName: Иван Петров
+                      guestEmail: ivan@example.com
+                      notes: Хочу обсудить интеграцию.
+                      createdAt: '2026-03-31T11:20:00+03:00'
+        '400':
+          description: '400 validation_error: поля не прошли проверку; время не по сетке (И6) или вне рабочего дня (И7).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationFailed'
+              examples:
+                Ошибка валидации (§8.8, §9.2):
+                  summary: Ошибка валидации (§8.8, §9.2)
+                  value:
+                    error:
+                      code: validation_error
+                      message: Проверьте правильность заполнения полей
+                      details:
+                        - field: guestEmail
+                          message: Некорректный email
+        '404':
+          description: '404 not_found: тип события не существует.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+              examples:
+                Тип события не найден (§9.2):
+                  summary: Тип события не найден (§9.2)
+                  value:
+                    error:
+                      code: not_found
+                      message: Тип события не найден
+        '409':
+          description: '409 slot_taken: интервал пересекается с существующим бронированием (И5, §5.4).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotTaken'
+              examples:
+                Слот занят (§5.4, И5):
+                  summary: Слот занят (§5.4, И5)
+                  value:
+                    error:
+                      code: slot_taken
+                      message: Это время уже занято
+        '422':
+          description: '422 out_of_window: начало брони в прошлом либо вне 14-дневного окна (Р6, Р8).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutOfWindow'
+              examples:
+                Вне окна записи (Р6, Р8):
+                  summary: Вне окна записи (Р6, Р8)
+                  value:
+                    error:
+                      code: out_of_window
+                      message: Запись доступна только на ближайшие 14 дней
+      tags:
+        - Бронирования
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+            examples:
+              Создание брони (§8.6):
+                summary: Создание брони (§8.6)
+                value:
+                  eventTypeId: meeting-15
+                  startAt: '2026-04-01T10:00:00+03:00'
+                  guestName: Иван Петров
+                  guestEmail: ivan@example.com
+                  notes: Хочу обсудить интеграцию.
+    get:
+      operationId: Bookings_list
+      description: |-
+        Список предстоящих бронирований (§8.7, сценарий С5).
+        Параметров нет: возвращаются только встречи, которые ещё не начались (§7.9).
+        Сортировка по startAt по возрастанию.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+                description: 'Успешное чтение: конверт `{ data: ... }` (§8).'
+              examples:
+                Предстоящие встречи (§8.7):
+                  summary: Предстоящие встречи (§8.7)
+                  value:
+                    data:
+                      - id: 6b1c2f4e-9a3d-4c77-9b6c-2f0d5a8e1b34
+                        eventType:
+                          id: meeting-15
+                          title: Встреча 15 минут
+                          durationMinutes: 15
+                        startAt: '2026-04-01T10:00:00+03:00'
+                        endAt: '2026-04-01T10:15:00+03:00'
+                        guestName: Иван Петров
+                        guestEmail: ivan@example.com
+                        notes: Хочу обсудить интеграцию.
+                        createdAt: '2026-03-31T11:20:00+03:00'
+      tags:
+        - Бронирования
+  /api/event-types:
+    get:
+      operationId: EventTypes_list
+      description: Список всех типов событий, сортировка по createdAt по возрастанию (§8.2, §7.4).
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EventType'
+                description: 'Успешное чтение: конверт `{ data: ... }` (§8).'
+              examples:
+                Каталог с двумя типами (§8.2):
+                  summary: Каталог с двумя типами (§8.2)
+                  value:
+                    data:
+                      - id: meeting-15
+                        title: Встреча 15 минут
+                        description: Короткий тип события для быстрого слота.
+                        durationMinutes: 15
+                        createdAt: '2026-03-01T12:00:00+03:00'
+                      - id: meeting-30
+                        title: Встреча 30 минут
+                        description: Базовый тип события для бронирования.
+                        durationMinutes: 30
+                        createdAt: '2026-03-01T12:05:00+03:00'
+      tags:
+        - Типы событий
+    post:
+      operationId: EventTypes_create
+      description: |-
+        Создать тип события (§8.3, сценарий С4).
+        Ошибки: 400 validation_error (формат и обязательность, §9.1),
+        409 event_type_id_taken (И1).
+      parameters: []
+      responses:
+        '201':
+          description: 'Успешное создание: 201 + конверт `{ data: ... }` (§8).'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/EventType'
+                description: 'Успешное создание: 201 + конверт `{ data: ... }` (§8).'
+              examples:
+                Создание типа события (§8.3):
+                  summary: Создание типа события (§8.3)
+                  value:
+                    data:
+                      id: intro-call
+                      title: Знакомство
+                      description: Первый созвон, обсуждаем задачу.
+                      durationMinutes: 30
+                      createdAt: '2026-03-31T11:20:00+03:00'
+        '400':
+          description: '400 validation_error: поля не прошли проверку; время не по сетке (И6) или вне рабочего дня (И7).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationFailed'
+              examples:
+                Ошибка валидации (§8.8, §9.1):
+                  summary: Ошибка валидации (§8.8, §9.1)
+                  value:
+                    error:
+                      code: validation_error
+                      message: Проверьте правильность заполнения полей
+                      details:
+                        - field: durationMinutes
+                          message: Длительность — целое число от 1 до 540 минут
+        '409':
+          description: '409 event_type_id_taken: тип события с таким id уже создан (И1).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeIdTaken'
+              examples:
+                Идентификатор занят (§9.1, И1):
+                  summary: Идентификатор занят (§9.1, И1)
+                  value:
+                    error:
+                      code: event_type_id_taken
+                      message: Тип события с таким идентификатором уже существует
+      tags:
+        - Типы событий
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventTypeCreate'
+            examples:
+              Создание типа события (§8.3):
+                summary: Создание типа события (§8.3)
+                value:
+                  id: intro-call
+                  title: Знакомство
+                  description: Первый созвон, обсуждаем задачу.
+                  durationMinutes: 30
+  /api/event-types/{id}/slots:
+    get:
+      operationId: EventTypes_slots
+      description: |-
+        Слоты типа события на всё окно записи: 14 дней, начиная с текущей даты (§8.5, §5.2).
+        Ответ справочный и может устареть к моменту отправки формы — клиент обязан
+        обработать 409 при бронировании (§5.4).
+        Из выдачи исключены слоты с началом в прошлом (Р8); дней вне окна в ответе нет (Р6).
+        Ошибки: 404 not_found.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WindowSlots'
+                description: 'Успешное чтение: конверт `{ data: ... }` (§8).'
+              examples:
+                'Фрагмент окна: 31 марта — первые три слота перекрыты бронями (§8.5)':
+                  summary: 'Фрагмент окна: 31 марта — первые три слота перекрыты бронями (§8.5)'
+                  value:
+                    data:
+                      eventTypeId: meeting-15
+                      durationMinutes: 15
+                      days:
+                        - date: '2026-03-31'
+                          freeCount: 33
+                          slots:
+                            - start: '2026-03-31T09:00:00+03:00'
+                              end: '2026-03-31T09:15:00+03:00'
+                              status: busy
+                            - start: '2026-03-31T09:15:00+03:00'
+                              end: '2026-03-31T09:30:00+03:00'
+                              status: busy
+                            - start: '2026-03-31T09:30:00+03:00'
+                              end: '2026-03-31T09:45:00+03:00'
+                              status: busy
+                            - start: '2026-03-31T09:45:00+03:00'
+                              end: '2026-03-31T10:00:00+03:00'
+                              status: free
+                            - start: '2026-03-31T10:00:00+03:00'
+                              end: '2026-03-31T10:15:00+03:00'
+                              status: free
+                        - date: '2026-04-01'
+                          freeCount: 36
+                          slots:
+                            - start: '2026-04-01T09:00:00+03:00'
+                              end: '2026-04-01T09:15:00+03:00'
+                              status: free
+        '404':
+          description: '404 not_found: тип события не существует.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+      tags:
+        - Типы событий
+components:
+  schemas:
+    Booking:
+      type: object
+      required:
+        - id
+        - eventType
+        - startAt
+        - endAt
+        - guestName
+        - guestEmail
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор брони, генерируется системой
+        eventType:
+          allOf:
+            - $ref: '#/components/schemas/BookingEventType'
+          description: Тип события
+        startAt:
+          type: string
+          format: date-time
+          description: Начало встречи
+        endAt:
+          type: string
+          format: date-time
+          description: 'Конец встречи: startAt + durationMinutes типа события на момент создания (И3)'
+        guestName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Имя гостя
+        guestEmail:
+          type: string
+          maxLength: 254
+          format: email
+          description: Email гостя
+        notes:
+          type: string
+          maxLength: 1000
+          description: Заметка гостя
+        createdAt:
+          type: string
+          format: date-time
+          description: Момент создания, задаётся системой
+      description: |-
+        Бронирование — подтверждённая запись гостя на интервал.
+        После создания не изменяется и не отменяется (Р9).
+    BookingCreate:
+      type: object
+      required:
+        - eventTypeId
+        - startAt
+        - guestName
+        - guestEmail
+      properties:
+        eventTypeId:
+          allOf:
+            - $ref: '#/components/schemas/EventTypeId'
+          description: Ссылка на существующий тип события (И8)
+        startAt:
+          type: string
+          format: date-time
+          description: |-
+            Начало встречи: выровнено по сетке слотов типа (И6), целиком внутри рабочего дня
+            09:00–18:00 Europe/Moscow (И7), не в прошлом и в пределах 14-дневного окна (Р6, Р8).
+        guestName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Имя гостя
+        guestEmail:
+          type: string
+          maxLength: 254
+          format: email
+          description: Email гостя
+        notes:
+          type: string
+          maxLength: 1000
+          description: Заметка гостя
+      description: |-
+        Тело POST /api/bookings (§8.6).
+        `endAt` клиентом не передаётся: система вычисляет его из длительности типа события (И3).
+    BookingEventType:
+      type: object
+      required:
+        - id
+        - title
+        - durationMinutes
+      properties:
+        id:
+          $ref: '#/components/schemas/EventTypeId'
+        title:
+          type: string
+        durationMinutes:
+          $ref: '#/components/schemas/DurationMinutes'
+      description: Краткая карточка типа события, встраивается в ответы бронирований (§8.6, §8.7).
+    DaySlots:
+      type: object
+      required:
+        - date
+        - freeCount
+        - slots
+      properties:
+        date:
+          type: string
+          format: date
+          description: Дата в таймзоне Europe/Moscow (Р5)
+        freeCount:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Число свободных слотов — счётчик «N св.» в календаре (§7.5)
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/Slot'
+          description: Слоты дня со статусами, по времени начала
+      description: |-
+        Слоты одного дня окна записи (§8.5).
+        Если доступных слотов нет (все в прошлом), день присутствует с пустым `slots` (§5.5).
+    DurationMinutes:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 540
+      description: |-
+        Длительность встречи в минутах, она же — шаг сетки слотов (Р1, Р2, И2).
+        Произвольная: целое от 1 до 540 (540 минут — длина рабочего дня 09:00–18:00).
+    EventType:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - durationMinutes
+        - createdAt
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/EventTypeId'
+          description: Идентификатор-slug
+          example: meeting-15
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Название встречи
+          example: Встреча 15 минут
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Описание для карточки в каталоге
+        durationMinutes:
+          allOf:
+            - $ref: '#/components/schemas/DurationMinutes'
+          description: Длительность встречи, она же — шаг сетки слотов
+        createdAt:
+          type: string
+          format: date-time
+          description: Момент создания, задаётся системой
+      description: |-
+        Тип события — хранимый шаблон встречи.
+        После создания не изменяется и не удаляется (§3).
+    EventTypeCreate:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - durationMinutes
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/EventTypeId'
+          description: Идентификатор-slug
+          example: intro-call
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Название встречи
+          example: Знакомство
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Описание
+        durationMinutes:
+          allOf:
+            - $ref: '#/components/schemas/DurationMinutes'
+          description: 'Длительность в минутах: целое от 1 до 540 (Р1)'
+      description: Тело POST /api/event-types (§8.3). `createdAt` клиентом не передаётся — задаётся системой.
+    EventTypeId:
+      type: string
+      pattern: ^[a-z0-9-]{1,64}$
+      description: |-
+        Идентификатор типа события (slug). Задаёт владелец, уникален в системе (И1),
+        используется в URL. Формат — §9.1.
+    EventTypeIdTaken:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - event_type_id_taken
+              description: Машиночитаемый код ошибки
+            message:
+              type: string
+              description: Человекочитаемое сообщение
+          description: Тело ошибки без details (§8.8).
+      description: '409 event_type_id_taken: тип события с таким id уже создан (И1).'
+    FieldError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          description: Имя поля запроса
+        message:
+          type: string
+          description: Сообщение об ошибке (формулировки — §9.1, §9.2)
+      description: Детализация ошибки валидации по полю (§8.8).
+    NotFound:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - not_found
+              description: Машиночитаемый код ошибки
+            message:
+              type: string
+              description: Человекочитаемое сообщение
+          description: Тело ошибки без details (§8.8).
+      description: '404 not_found: тип события не существует.'
+    OutOfWindow:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - out_of_window
+              description: Машиночитаемый код ошибки
+            message:
+              type: string
+              description: Человекочитаемое сообщение
+          description: Тело ошибки без details (§8.8).
+      description: '422 out_of_window: начало брони в прошлом либо вне 14-дневного окна (Р6, Р8).'
+    Slot:
+      type: object
+      required:
+        - start
+        - end
+        - status
+      properties:
+        start:
+          type: string
+          format: date-time
+          description: Начало слота
+        end:
+          type: string
+          format: date-time
+          description: 'Конец слота: start + durationMinutes типа события'
+        status:
+          $ref: '#/components/schemas/SlotStatus'
+      description: |-
+        Слот — интервал [start, end) длиной в длительность типа события.
+        Вычисляемая структура, в хранилище отсутствует (§4.4).
+    SlotStatus:
+      type: string
+      enum:
+        - free
+        - busy
+      description: |-
+        Статус слота. Слоты с началом в прошлом и слоты вне окна записи
+        в выдачу не попадают вовсе — отдельного статуса для них нет (§4.4, §5.1).
+    SlotTaken:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - slot_taken
+              description: Машиночитаемый код ошибки
+            message:
+              type: string
+              description: Человекочитаемое сообщение
+          description: Тело ошибки без details (§8.8).
+      description: '409 slot_taken: интервал пересекается с существующим бронированием (И5, §5.4).'
+    ValidationErrorBody:
+      type: object
+      required:
+        - code
+        - message
+        - details
+      properties:
+        code:
+          type: string
+          enum:
+            - validation_error
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
+      description: Тело validation_error — единственной ошибки с details (§8.8).
+    ValidationFailed:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          $ref: '#/components/schemas/ValidationErrorBody'
+      description: '400 validation_error: поля не прошли проверку; время не по сетке (И6) или вне рабочего дня (И7).'
+    WindowSlots:
+      type: object
+      required:
+        - eventTypeId
+        - durationMinutes
+        - days
+      properties:
+        eventTypeId:
+          allOf:
+            - $ref: '#/components/schemas/EventTypeId'
+          description: Тип события, для которого построена сетка
+        durationMinutes:
+          allOf:
+            - $ref: '#/components/schemas/DurationMinutes'
+          description: Шаг сетки = длительность типа события (Р2)
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/DaySlots'
+          description: Дни окна записи по возрастанию даты, первый — текущая дата
+      description: |-
+        Слоты типа события на всё окно записи: ровно 14 дней, начиная с текущей даты (§5.2, §8.5).
+        Дней вне окна в ответе нет.
+servers:
+  - url: http://localhost:3000
+    description: Локальная разработка
+    variables: {}
