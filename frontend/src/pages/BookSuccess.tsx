@@ -1,17 +1,31 @@
 import type { components } from '@calendar/api-contract';
 import { Box, Button, Card, Container, Stack, Text, Title } from '@mantine/core';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom';
 
 import { formatDayLabel, formatDurationMinutes, formatSlotInterval } from '../lib/format';
 
 type Booking = components['schemas']['Booking'];
 
+// Бронь, сохранённая при создании (см. BookEventType): переживает перезагрузку
+// страницы, чего location.state не умеет.
+function readStoredBooking(eventTypeId: string): Booking | null {
+  try {
+    const raw = sessionStorage.getItem(`booking-success:${eventTypeId}`);
+    return raw ? (JSON.parse(raw) as Booking) : null;
+  } catch {
+    return null;
+  }
+}
+
 // Экран успеха `/book/{eventTypeId}/success` (§7.7): подтверждение с деталями
 // брони и ссылка на каталог для новой записи. Данные брони приходят через
-// location.state со шага формы — эндпоинта для одной брони в API нет,
-// поэтому прямой заход на URL отправляет в каталог.
+// location.state со шага формы, после перезагрузки — из sessionStorage;
+// эндпоинта для одной брони в API нет, поэтому заход без данных отправляет
+// в каталог.
 export function BookSuccess() {
-  const booking = (useLocation().state as { booking?: Booking } | null)?.booking;
+  const { eventTypeId = '' } = useParams();
+  const stateBooking = (useLocation().state as { booking?: Booking } | null)?.booking;
+  const booking = stateBooking ?? readStoredBooking(eventTypeId);
 
   if (!booking) {
     return <Navigate to="/book" replace />;

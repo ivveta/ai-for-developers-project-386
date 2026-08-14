@@ -90,6 +90,10 @@ export function BookEventType() {
   };
 
   const handleBooked = (booking: Booking) => {
+    // location.state не переживает перезагрузку страницы, а эндпоинта для одной
+    // брони в API нет (§8) — дублируем бронь в sessionStorage, чтобы экран
+    // успеха §7.7 открывался и после перезагрузки.
+    sessionStorage.setItem(`booking-success:${eventTypeId}`, JSON.stringify(booking));
     navigate(`/book/${eventTypeId}/success`, { state: { booking } });
   };
 

@@ -47,6 +47,46 @@ interface Bookings {
     },
     #{ title: "Создание брони (§8.6)" }
   )
+  @opExample(
+    #{
+      returnType: #{
+        statusCode: 400,
+        error: #{
+          code: "validation_error",
+          message: "Проверьте правильность заполнения полей",
+          details: #[#{ field: "guestEmail", message: "Некорректный email" }],
+        },
+      },
+    },
+    #{ title: "Ошибка валидации (§8.8, §9.2)" }
+  )
+  @opExample(
+    #{
+      returnType: #{
+        statusCode: 404,
+        error: #{ code: "not_found", message: "Тип события не найден" },
+      },
+    },
+    #{ title: "Тип события не найден (§9.2)" }
+  )
+  @opExample(
+    #{
+      returnType: #{
+        statusCode: 409,
+        error: #{ code: "slot_taken", message: "Это время уже занято" },
+      },
+    },
+    #{ title: "Слот занят (§5.4, И5)" }
+  )
+  @opExample(
+    #{
+      returnType: #{
+        statusCode: 422,
+        error: #{ code: "out_of_window", message: "Запись доступна только на ближайшие 14 дней" },
+      },
+    },
+    #{ title: "Вне окна записи (Р6, Р8)" }
+  )
   create(@body body: BookingCreate): CreatedResponse<Booking> | ValidationFailed | NotFound | SlotTaken | OutOfWindow;
 
   /**

@@ -13,6 +13,30 @@ type FormValues = {
   durationMinutes: string;
 };
 
+// Локальная проверка по правилам и формулировкам §9.1 — до запроса к API.
+// Серверная валидация остаётся источником истины (ответ 400 обрабатывается ниже),
+// локальная даёт точные сообщения у фактически невалидных полей.
+function validate(values: FormValues): Partial<FormValues> {
+  const errors: Partial<FormValues> = {};
+  if (!values.id) {
+    errors.id = 'Укажите идентификатор';
+  } else if (!/^[a-z0-9-]{1,64}$/.test(values.id)) {
+    errors.id = 'Только строчные латинские буквы, цифры и дефис, до 64 символов';
+  }
+  if (!values.title.trim() || values.title.length > 100) {
+    errors.title = 'Укажите название, не длиннее 100 символов';
+  }
+  if (!values.description.trim() || values.description.length > 500) {
+    errors.description = 'Укажите описание, не длиннее 500 символов';
+  }
+  if (values.durationMinutes === '') {
+    errors.durationMinutes = 'Укажите длительность';
+  } else if (!/^\d+$/.test(values.durationMinutes) || Number(values.durationMinutes) < 1 || Number(values.durationMinutes) > 540) {
+    errors.durationMinutes = 'Длительность — целое число от 1 до 540 минут';
+  }
+  return errors;
+}
+
 // Админка: создание типа события `/admin/event-types/new` (§7.8).
 export function AdminEventTypeNew() {
   const navigate = useNavigate();
@@ -32,6 +56,12 @@ export function AdminEventTypeNew() {
   };
 
   const submit = async () => {
+    const errors = validate(values);
+    if (Object.values(errors).some(Boolean)) {
+      setFieldErrors(errors);
+      setFormError(null);
+      return;
+    }
     setSubmitting(true);
     setFormError(null);
     setFieldErrors({});

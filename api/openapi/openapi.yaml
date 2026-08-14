@@ -57,24 +57,55 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationFailed'
+              examples:
+                Ошибка валидации (§8.8, §9.2):
+                  summary: Ошибка валидации (§8.8, §9.2)
+                  value:
+                    error:
+                      code: validation_error
+                      message: Проверьте правильность заполнения полей
+                      details:
+                        - field: guestEmail
+                          message: Некорректный email
         '404':
           description: '404 not_found: тип события не существует.'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFound'
+              examples:
+                Тип события не найден (§9.2):
+                  summary: Тип события не найден (§9.2)
+                  value:
+                    error:
+                      code: not_found
+                      message: Тип события не найден
         '409':
           description: '409 slot_taken: интервал пересекается с существующим бронированием (И5, §5.4).'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SlotTaken'
+              examples:
+                Слот занят (§5.4, И5):
+                  summary: Слот занят (§5.4, И5)
+                  value:
+                    error:
+                      code: slot_taken
+                      message: Это время уже занято
         '422':
           description: '422 out_of_window: начало брони в прошлом либо вне 14-дневного окна (Р6, Р8).'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OutOfWindow'
+              examples:
+                Вне окна записи (Р6, Р8):
+                  summary: Вне окна записи (Р6, Р8)
+                  value:
+                    error:
+                      code: out_of_window
+                      message: Запись доступна только на ближайшие 14 дней
       tags:
         - Бронирования
       requestBody:
@@ -205,12 +236,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationFailed'
+              examples:
+                Ошибка валидации (§8.8, §9.1):
+                  summary: Ошибка валидации (§8.8, §9.1)
+                  value:
+                    error:
+                      code: validation_error
+                      message: Проверьте правильность заполнения полей
+                      details:
+                        - field: durationMinutes
+                          message: Длительность — целое число от 1 до 540 минут
         '409':
           description: '409 event_type_id_taken: тип события с таким id уже создан (И1).'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventTypeIdTaken'
+              examples:
+                Идентификатор занят (§9.1, И1):
+                  summary: Идентификатор занят (§9.1, И1)
+                  value:
+                    error:
+                      code: event_type_id_taken
+                      message: Тип события с таким идентификатором уже существует
       tags:
         - Типы событий
       requestBody:

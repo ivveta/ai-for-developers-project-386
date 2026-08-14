@@ -16,6 +16,25 @@ type FormValues = {
   notes: string;
 };
 
+// Локальная проверка по правилам и формулировкам §9.2 — до запроса к API.
+// Серверная валидация остаётся источником истины (ответ 400 обрабатывается ниже),
+// локальная даёт точные сообщения у фактически невалидных полей.
+function validate(values: FormValues): Partial<FormValues> {
+  const errors: Partial<FormValues> = {};
+  if (!values.guestName.trim() || values.guestName.length > 100) {
+    errors.guestName = 'Укажите имя, не длиннее 100 символов';
+  }
+  if (!values.guestEmail.trim()) {
+    errors.guestEmail = 'Укажите email';
+  } else if (values.guestEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.guestEmail)) {
+    errors.guestEmail = 'Некорректный email';
+  }
+  if (values.notes.length > 1000) {
+    errors.notes = 'Заметка не длиннее 1000 символов';
+  }
+  return errors;
+}
+
 // Форма записи §7.6 — шаг страницы /book/{eventTypeId} при наличии
 // query-параметра startAt. Отдельного маршрута нет.
 export function BookingForm({
@@ -50,6 +69,12 @@ export function BookingForm({
   };
 
   const submit = async () => {
+    const errors = validate(values);
+    if (Object.values(errors).some(Boolean)) {
+      setFieldErrors(errors);
+      setFormError(null);
+      return;
+    }
     setSubmitting(true);
     setFormError(null);
     setFieldErrors({});
