@@ -15,7 +15,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
 настраивается через `VITE_API_URL`, код клиента менять не потребуется. Каталог `backend/`,
 `docker-compose.yml` и `.env.example` отсутствуют — бэкенд не начат.
 
-## Шаг 0. Каркас workspace `backend/`
+## Шаг 0. Каркас workspace `backend/` ✅ (выполнено)
 
 1. Добавить `backend` в `workspaces` корневого `package.json`.
 2. `backend/package.json` (`@calendar/backend`): deps — `fastify`, `@fastify/cors`,
@@ -28,7 +28,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
 5. `.env.example`: `DATABASE_URL`, `TEST_DATABASE_URL`, `PORT=3000`; `.gitignore` — добавить
    `.env`, `backend/dist`.
 
-## Шаг 1. БД: миграция + сид
+## Шаг 1. БД: миграция + сид ✅ (выполнено)
 
 - `migrations/0001_init.sql`: расширение `btree_gist`; таблица `event_type` (ограничения по
   §4.2, И2); таблица `booking` (FK на `event_type`, `CHECK start_at < end_at` — И4);
@@ -39,7 +39,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
 - `src/config.ts` (env), `src/data/db.ts` (pool); миграции и сид запускаются при старте
   `server.ts`.
 
-## Шаг 2. `lib/`: время
+## Шаг 2. `lib/`: время ✅ (выполнено)
 
 - `clock.ts`: интерфейс `Clock`, `systemClock`, `fixedClock` для тестов (спека оперирует
   конкретными моментами — «31 марта, 11:20», §5.2).

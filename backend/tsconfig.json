@@ -1,0 +1,17 @@
+{
+  // Наследуем общие опции монорепозитория, но переопределяем emit:
+  // бэкенд собирается в dist и запускается Node.js 22 напрямую,
+  // поэтому module/moduleResolution — NodeNext вместо Bundler-режима.
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    // явно подключаем только типы node: иначе tsc цепляет все @types/*
+    // из корневого node_modules (d3, geojson и др. — транзитивные от фронтенда)
+    "types": ["node"]
+  },
+  "include": ["src"]
+}
