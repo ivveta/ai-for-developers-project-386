@@ -46,7 +46,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
 - `msk.ts`: границы рабочего дня 09:00–18:00 `Europe/Moscow`, сериализация ISO 8601 со
   смещением `+03:00`. Хранение в UTC, преобразование на границе системы (§4.6).
 
-## Шаг 3. `domain/`: чистые функции + юнит-тесты
+## Шаг 3. `domain/`: чистые функции + юнит-тесты ✅ (выполнено)
 
 - `errors.ts`: типизированные доменные ошибки (`ValidationError` с `details`, `NotFound`,
   `EventTypeIdTaken`, `SlotTaken`, `OutOfWindow`).
