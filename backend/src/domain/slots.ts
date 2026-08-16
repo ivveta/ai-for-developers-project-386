@@ -53,19 +53,25 @@ export interface WindowView {
  * если у дня не осталось доступных слотов, он присутствует с пустым `slots`
  * и `freeCount = 0` (§5.5).
  */
+/** Полночь текущего дня в Europe/Moscow — нижняя граница выборки пересечений. */
+export function bookingWindowStart(now: Date): Date {
+  const today = mskLocal(now);
+  return mskToUtc({ year: today.year, month: today.month, day: today.day, hour: 0, minute: 0 });
+}
+
+/** Верхняя граница окна записи: 18:00 14-го дня (§5.2). */
+export function bookingWindowEnd(now: Date): Date {
+  return new Date(
+    bookingWindowStart(now).getTime() + (WINDOW_DAYS - 1) * DAY_MS + WORKDAY_END_HOUR * 3_600_000,
+  );
+}
+
 export function buildWindowSlots(
   eventType: { id: string; durationMinutes: number },
   now: Date,
   bookings: readonly BookingInterval[],
 ): WindowView {
-  const today = mskLocal(now);
-  const todayMidnight = mskToUtc({
-    year: today.year,
-    month: today.month,
-    day: today.day,
-    hour: 0,
-    minute: 0,
-  });
+  const todayMidnight = bookingWindowStart(now);
   const stepMs = eventType.durationMinutes * 60_000;
   // Полные слоты в рабочем дне: неполный «хвост» у 18:00 не генерируется (§5.1).
   const slotsPerDay = Math.floor(WORKDAY_LENGTH_MINUTES / eventType.durationMinutes);
@@ -141,15 +147,5 @@ export function isWithinWorkday(startAt: Date, endAt: Date): boolean {
 /** Р6/Р8: начало не в прошлом и внутри 14-дневного окна (до 18:00 14-го дня, §5.2). */
 export function isInBookingWindow(startAt: Date, now: Date): boolean {
   if (startAt.getTime() < now.getTime()) return false;
-  const today = mskLocal(now);
-  const todayMidnight = mskToUtc({
-    year: today.year,
-    month: today.month,
-    day: today.day,
-    hour: 0,
-    minute: 0,
-  });
-  const windowEnd =
-    todayMidnight.getTime() + (WINDOW_DAYS - 1) * DAY_MS + WORKDAY_END_HOUR * 3_600_000;
-  return startAt.getTime() < windowEnd;
+  return startAt.getTime() < bookingWindowEnd(now).getTime();
 }

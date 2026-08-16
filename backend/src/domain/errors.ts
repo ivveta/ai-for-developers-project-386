@@ -7,9 +7,13 @@ export interface FieldError {
 }
 
 export class DomainError extends Error {
+  /** Машиночитаемый код (§8.8), конкретный — в каждой подошибке. */
+  readonly code: string;
+
   constructor(message: string) {
     super(message);
     this.name = new.target.name;
+    this.code = 'domain_error';
   }
 }
 

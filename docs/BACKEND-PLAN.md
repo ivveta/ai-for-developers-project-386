@@ -64,7 +64,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
 - `booking-repo.ts`: `listUpcoming(now)` (JOIN типа, по `startAt` ↑, §8.7),
   `findOverlapping(окно)` для построения слотов, `insert` (`23P01` → `slot_taken`).
 
-## Шаг 5. `services/`: сценарии
+## Шаг 5. `services/`: сценарии ✅ (выполнено)
 
 - `createEventType` — валидация §9.1 с `details` по полям.
 - `getWindowSlots` — `404` при отсутствии типа; сборка окна через `domain/slots`.
@@ -73,7 +73,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
   вставка, конфликт ограничения → 409. `endAt` вычисляется из длительности типа (И3).
 - `listBookings` — только предстоящие встречи (§7.9).
 
-## Шаг 6. `http/`: Fastify
+## Шаг 6. `http/`: Fastify ✅ (выполнено)
 
 - `app.ts`: `buildApp({ pool, clock })` — CORS для dev (STRUCTURE-PLAN, решение 8),
   `setErrorHandler` с маппингом доменных ошибок в формат §8.8 (400/404/409/422).
@@ -81,7 +81,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
   из `@calendar/api-contract`.
 - `server.ts`: entrypoint — миграции → seed → `listen(PORT)`.
 
-## Шаг 7. Интеграционные тесты
+## Шаг 7. Интеграционные тесты ✅ (выполнено)
 
 - Против тестовой БД из docker-compose: миграции в `setup`, `TRUNCATE` между тестами,
   `buildApp` с `fixedClock`, запросы через `app.inject()` без реальных портов.
