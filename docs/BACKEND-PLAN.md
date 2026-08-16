@@ -57,7 +57,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
   случаи §5.5 (после 18:00, до 09:00, текущий момент внутри слота, D не делит 540, день
   без доступных слотов).
 
-## Шаг 4. `data/`: репозитории
+## Шаг 4. `data/`: репозитории ✅ (выполнено)
 
 - `event-type-repo.ts`: `list` (по `createdAt` ↑, §8.2), `findById`, `insert` (SQLSTATE
   `23505` → `event_type_id_taken`).
