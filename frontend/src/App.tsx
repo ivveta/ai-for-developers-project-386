@@ -2,6 +2,7 @@ import { MantineProvider } from '@mantine/core';
 import { Outlet, Route, Routes } from 'react-router-dom';
 
 import { Header } from './components/Header';
+import { Admin } from './pages/Admin';
 import { AdminBookings } from './pages/AdminBookings';
 import { AdminEventTypeNew } from './pages/AdminEventTypeNew';
 import { AdminEventTypes } from './pages/AdminEventTypes';
@@ -29,6 +30,7 @@ export function App() {
           <Route path="/book" element={<BookCatalog />} />
           <Route path="/book/:eventTypeId" element={<BookEventType />} />
           <Route path="/book/:eventTypeId/success" element={<BookSuccess />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/admin/event-types" element={<AdminEventTypes />} />
           <Route path="/admin/event-types/new" element={<AdminEventTypeNew />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />

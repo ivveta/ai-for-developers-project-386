@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 // и «Админка» (/admin/bookings). Активный раздел выделен.
 const NAV_ITEMS = [
   { to: '/book', label: 'Записаться', match: '/book' },
-  { to: '/admin/bookings', label: 'Админка', match: '/admin' },
+  { to: '/admin', label: 'Админка', match: '/admin' },
 ] as const;
 
 export function Header() {
