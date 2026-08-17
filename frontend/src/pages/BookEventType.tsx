@@ -20,7 +20,6 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { client } from '../api/client';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { BookingForm } from '../components/BookingForm';
-import { HostAvatar } from '../components/HostAvatar';
 import { SlotPanel } from '../components/SlotPanel';
 import { formatDayLabel, formatDurationMinutes, formatSlotInterval } from '../lib/format';
 
@@ -173,8 +172,7 @@ export function BookEventType() {
             <Grid gutter="lg" align="stretch">
               <Grid.Col span={{ base: 12, md: 4, lg: 3 }}>
                 <Card withBorder radius="lg" p="xl" h="100%">
-                  <HostAvatar />
-                  <Group justify="space-between" wrap="nowrap" mt="lg" mb="xs">
+                  <Group justify="space-between" wrap="nowrap" mb="xs">
                     <Text fw={700} fz="lg">
                       {eventType.title}
                     </Text>

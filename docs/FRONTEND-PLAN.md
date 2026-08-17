@@ -59,8 +59,8 @@ STRUCTURE-PLAN («Порядок реализации», шаги 3–4) — д�
 - Header (§7.2), Home (§7.3), BookCatalog (§7.4).
 - BookEventType (§7.5: три колонки, календарь со счётчиками «N св.»; форма §7.6 на той же странице
   через query-параметр `startAt`), Success (§7.7).
-- AdminEventTypes, AdminEventTypeNew (§7.8), AdminBookings (§7.9).
-- Состояния экранов §7.10; форматы §7.11 через `Intl` + таймзона `Europe/Moscow`.
+- Admin (§7.8), AdminEventTypes, AdminEventTypeNew (§7.9), AdminBookings (§7.10).
+- Состояния экранов §7.11; форматы §7.12 через `Intl` + таймзона `Europe/Moscow`.
 - Обработка ошибок: 400 — подсветка полей из `error.details`; 409 `slot_taken` — «Этот слот только
   что заняли…» и возврат к выбору слота с перезапросом; 404 — «Тип события не найден».
 

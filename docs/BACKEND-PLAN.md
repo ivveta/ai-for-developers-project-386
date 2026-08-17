@@ -35,7 +35,7 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
   `EXCLUDE USING gist (tstzrange(start_at, end_at, '[)') WITH &&)` — И5 на уровне БД;
   индекс по `booking.start_at` (§4.6). Метки времени — `timestamptz` (UTC, Р5).
 - `src/data/seed.ts`: идемпотентный сид `meeting-15`/`meeting-30` (`ON CONFLICT DO NOTHING`,
-  §10). Владелец `Tota`/`Host` — константа фронта, в БД не хранится (DOMAIN-MODEL §2).
+   §10). Владелец — константа фронта, в БД не хранится (DOMAIN-MODEL §2).
 - `src/config.ts` (env), `src/data/db.ts` (pool); миграции и сид запускаются при старте
   `server.ts`.
 

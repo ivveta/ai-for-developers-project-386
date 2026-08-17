@@ -18,7 +18,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { client } from '../api/client';
-import { HostAvatar } from '../components/HostAvatar';
 import { formatDurationMinutes } from '../lib/format';
 
 type EventType = components['schemas']['EventType'];
@@ -53,8 +52,7 @@ export function BookCatalog() {
     <Box bg="gray.0" style={{ minHeight: 'calc(100vh - 57px)' }}>
       <Container size="lg" py={40}>
         <Card withBorder radius="lg" p="xl" mb="xl">
-          <HostAvatar />
-          <Title order={1} fz={28} mt="lg" mb={4}>
+          <Title order={1} fz={28} mb={4}>
             Выберите тип события
           </Title>
           <Text c="gray.7">Нажмите на карточку, чтобы открыть календарь и выбрать удобный слот.</Text>
