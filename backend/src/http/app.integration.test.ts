@@ -4,6 +4,9 @@
 // прогоняются только юнит-тесты (риски из плана).
 
 import type { FastifyInstance } from 'fastify';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { config } from '../config.js';
@@ -323,6 +326,55 @@ describe.skipIf(!dbAvailable)('интеграционные тесты API', () 
       expect(data.days).toHaveLength(14);
       expect(data.days[0].date).toBe('2026-03-31');
       expect(data.days[1].date).toBe('2026-04-01');
+    });
+  });
+
+  describe('статическая раздача фронтенда (шаг 8)', () => {
+    let staticDir: string;
+    let staticApp: FastifyInstance;
+
+    beforeAll(async () => {
+      staticDir = mkdtempSync(path.join(tmpdir(), 'calendar-dist-'));
+      writeFileSync(path.join(staticDir, 'index.html'), '<!doctype html><html><body>SPA</body></html>');
+      writeFileSync(path.join(staticDir, 'asset.js'), 'console.log("asset");');
+      staticApp = buildApp({ pool, clock: fixedClock(NOW), staticDir });
+      await staticApp.ready();
+    });
+
+    afterAll(async () => {
+      await staticApp.close();
+      rmSync(staticDir, { recursive: true, force: true });
+    });
+
+    it('GET / отдаёт index.html', async () => {
+      const res = await staticApp.inject({ method: 'GET', url: '/' });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toContain('SPA');
+    });
+
+    it('SPA-фолбэк: не-API путь отдаёт index.html', async () => {
+      const res = await staticApp.inject({ method: 'GET', url: '/book/meeting-15' });
+      expect(res.statusCode).toBe(200);
+      expect(res.headers['content-type']).toContain('text/html');
+      expect(res.body).toContain('SPA');
+    });
+
+    it('существующий ассет отдаётся как файл', async () => {
+      const res = await staticApp.inject({ method: 'GET', url: '/asset.js' });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toBe('console.log("asset");');
+    });
+
+    it('неизвестный /api-путь → 404 JSON, не index.html', async () => {
+      const res = await staticApp.inject({ method: 'GET', url: '/api/unknown' });
+      expect(res.statusCode).toBe(404);
+      expect(res.json().error.code).toBe('not_found');
+    });
+
+    it('POST на неизвестный путь → 404 JSON', async () => {
+      const res = await staticApp.inject({ method: 'POST', url: '/nope', payload: {} });
+      expect(res.statusCode).toBe(404);
+      expect(res.json().error.code).toBe('not_found');
     });
   });
 });

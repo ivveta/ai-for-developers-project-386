@@ -89,14 +89,17 @@ docker-compose; `pg` + `node-pg-migrate`; тесты на Vitest; типы те�
   один 201, второй 409, в системе одна бронь), **D1–D8** (бронирование), **E1–E3**
   (админский список).
 
-## Шаг 8. Финал: прод-режим и документация
+## Шаг 8. Финал: прод-режим и документация ✅ (выполнено)
 
-- Бэкенд раздаёт `frontend/dist` через `@fastify/static` + SPA-fallback для не-`/api`
-  путей (STRUCTURE-PLAN, шаг 5).
-- `Makefile` и корневые скрипты: цели для БД и бэкенда.
-- Обновить `README.md` (запуск с реальным бэкендом: docker compose, `VITE_API_URL`),
+- Бэкенд раздаёт `frontend/dist` через `@fastify/static` (wildcard:false — маршрут на каждый файл)
+  + SPA-fallback для не-`/api` GET-путей через `setNotFoundHandler` (STRUCTURE-PLAN, шаг 5).
+  Проверено интеграционным тестом и живым прод-запуском (`make prod`).
+- `Makefile`: цели `db`/`db-down` (docker compose), `backend`, `prod`; `dev` переведён на
+  реальный стек (PostgreSQL + бэкенд + фронтенд с `VITE_API_URL=http://localhost:3000`),
+  мок-режим остаётся через `mock` + `frontend`.
+- Обновлены `README.md` (запуск с реальным бэкендом, docker compose, `VITE_API_URL`),
   `AGENTS.md` (структура, команды), блок «Статус реализации» в `SPECIFICATION.md`.
-- Полный прогон: `npm run build`, `npm test` по всем workspace.
+- Полный прогон: `npm run build`, `npm test` по всем workspace — зелёные.
 
 ## Покрытие критериев приёмки
 

@@ -1,10 +1,10 @@
-.PHONY: dev mock frontend install build test
+.PHONY: dev mock frontend backend db db-down prod install build test
 
-# Поднимает мок-сервер API (:4010) и фронтенд (:5173) одной командой.
+# Реальный стек: PostgreSQL + бэкенд (:3000) + фронтенд (:5173).
 # Остановка — Ctrl+C: оба процесса завершатся вместе.
-dev:
-	npm run mock & \
-	npm run dev -w @calendar/frontend & \
+dev: db
+	npm run dev -w @calendar/backend & \
+	VITE_API_URL=http://localhost:3000 npm run dev -w @calendar/frontend & \
 	wait
 
 mock:
@@ -12,6 +12,20 @@ mock:
 
 frontend:
 	npm run dev -w @calendar/frontend
+
+# PostgreSQL для разработки и тестов (docker compose, порты 5432/5433).
+db:
+	docker compose up -d
+
+db-down:
+	docker compose down
+
+backend:
+	npm run dev -w @calendar/backend
+
+# Прод-сборка: один процесс — бэкенд раздаёт API и собранный фронтенд на :3000.
+prod: build
+	npm start -w @calendar/backend
 
 install:
 	npm install
