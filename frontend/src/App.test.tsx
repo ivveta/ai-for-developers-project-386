@@ -157,7 +157,7 @@ describe('F5: шапка на любом экране', () => {
     const header = screen.getByRole('banner');
     expect(within(header).getByRole('link', { name: 'Calendar' })).toBeInTheDocument();
     expect(within(header).getByRole('link', { name: 'Записаться' })).toHaveAttribute('href', '/book');
-    expect(within(header).getByRole('link', { name: 'Админка' })).toHaveAttribute('href', '/admin/bookings');
+    expect(within(header).getByRole('link', { name: 'Админка' })).toHaveAttribute('href', '/admin');
     unmount();
   });
 });
