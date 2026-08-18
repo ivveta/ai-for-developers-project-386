@@ -28,6 +28,17 @@
 | `npm run build` / `npm test` | сборка / тесты всех workspace |
 | `npm run contract` | пересобрать контракт и типы |
 
+### Порты
+
+| Порт | Сервис | Когда活跃ен |
+|------|--------|------------|
+| 3000 | backend (Fastify) | `make dev`, `make prod`, e2e |
+| 5173 | frontend (Vite dev) | `make dev` |
+| 4010 | Prism mock | `make mock` |
+| 5432 | PostgreSQL dev | `make db` |
+| 5433 | PostgreSQL test | `make db` |
+| 5434 | PostgreSQL e2e | `make e2e` |
+
 Юнит-тесты бэкенда и тесты фронтенда запускаются без внешних зависимостей;
 интеграционные API-тесты бэкенда требуют поднятого Docker (`make db`) и иначе
 пропускаются.
