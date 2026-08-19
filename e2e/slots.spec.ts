@@ -54,7 +54,7 @@ test.describe('E2E-SLOT-02. Выбор слота и кнопка «Продол
     await expect(slotButton).toBeVisible();
     await slotButton.click();
 
-    await expect(page.getByText(slot.timeText)).toBeVisible();
+    await expect(slotButton).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: 'Продолжить' })).toBeEnabled();
   });
 
