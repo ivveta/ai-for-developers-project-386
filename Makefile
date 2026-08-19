@@ -59,7 +59,7 @@ e2e-dev:
 		echo "ERROR: port 3000 is in use by a non-Docker process. Stop dev server first (Ctrl+C in 'make dev')."; \
 		exit 1; \
 	fi
-	docker compose -f docker-compose.e2e.yml --project-name calendar-e2e build --no-cache backend
+	docker compose -f docker-compose.e2e.yml --project-name calendar-e2e build backend
 	docker compose -f docker-compose.e2e.yml --project-name calendar-e2e up -d --wait
 
 # E2E: прогон Playwright-тестов (требует поднятого стенда — make e2e-dev).

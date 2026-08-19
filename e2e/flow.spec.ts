@@ -21,7 +21,7 @@ test.describe('E2E-FLOW-01. Полный цикл: создание типа →
     await expect(page.getByText('demo')).toBeVisible();
 
     await page.goto('/book');
-    await expect(page.getByText('Демо-встреча')).toBeVisible();
+    await expect(page.getByText('Демо-встреча', { exact: true })).toBeVisible();
     await expect(page.getByText('20 мин')).toBeVisible();
 
     await page.getByRole('link', { name: /Демо-встреча/ }).click();
@@ -29,7 +29,7 @@ test.describe('E2E-FLOW-01. Полный цикл: создание типа →
     await expect(page.getByText('Календарь')).toBeVisible();
 
     const slot = await findFreeSlot('demo');
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.locator('button[aria-pressed]').filter({ hasText: new RegExp(`^${slot.dayNumber}.*св\\.`) });
     await dayButton.click();
 
     await page.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();

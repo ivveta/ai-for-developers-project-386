@@ -47,7 +47,7 @@ test.describe('E2E-SLOT-02. Выбор слота и кнопка «Продол
     await page.goto('/book/meeting-15');
     await expect(page.getByText('Календарь')).toBeVisible();
 
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     const slotButton = page.getByRole('button', { name: new RegExp(`${slot.timeText} - `) });
@@ -64,7 +64,7 @@ test.describe('E2E-SLOT-02. Выбор слота и кнопка «Продол
     await page.goto('/book/meeting-15');
     await expect(page.getByText('Календарь')).toBeVisible();
 
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     await page.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();
@@ -89,7 +89,7 @@ test.describe('E2E-SLOT-03. Смена даты обновляет список 
     await page.goto('/book/meeting-15');
     await expect(page.getByText('Календарь')).toBeVisible();
 
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     const slots = page.locator('button').filter({ hasText: /Свободно/ });
@@ -124,7 +124,7 @@ test.describe('E2E-SLOT-04. День без свободных слотов', ()
     await page.goto('/book/meeting-15');
     await expect(page.getByText('Календарь')).toBeVisible();
 
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     await expect(page.getByText('На этот день свободных слотов нет')).toBeVisible();

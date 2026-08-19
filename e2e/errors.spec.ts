@@ -15,7 +15,7 @@ test.describe('E2E-ERR-01. Слот занят при отправке форм�
     const pageB = await contextB.newPage();
 
     await pageA.goto('/book/meeting-15');
-    const dayButtonA = pageA.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButtonA = pageA.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButtonA.click();
     await pageA.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();
     await pageA.getByRole('button', { name: 'Продолжить' }).click();
@@ -23,7 +23,7 @@ test.describe('E2E-ERR-01. Слот занят при отправке форм�
     await pageA.getByLabel('Email').fill('ivan@example.com');
 
     await pageB.goto('/book/meeting-15');
-    const dayButtonB = pageB.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButtonB = pageB.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButtonB.click();
     await pageB.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();
     await pageB.getByRole('button', { name: 'Продолжить' }).click();
@@ -53,7 +53,7 @@ test.describe('E2E-ERR-02. Валидация формы: пустое имя', 
     const slot = await findFreeSlot('meeting-15');
 
     await page.goto('/book/meeting-15');
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     await page.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();
@@ -77,7 +77,7 @@ test.describe('E2E-ERR-03. Валидация формы: некорректны
     const slot = await findFreeSlot('meeting-15');
 
     await page.goto('/book/meeting-15');
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     await page.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();

@@ -14,7 +14,7 @@ test.describe('E2E-BOOK-01. Успешное бронирование: полн�
     await page.getByRole('link', { name: /Встреча 15 минут/ }).click();
     await expect(page).toHaveURL('/book/meeting-15');
 
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     await page.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();
@@ -49,7 +49,7 @@ test.describe('E2E-BOOK-02. Бронирование без заметки', () 
     const slot = await findFreeSlot('meeting-15');
 
     await page.goto('/book/meeting-15');
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     await page.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();
@@ -75,7 +75,7 @@ test.describe('E2E-BOOK-03. Бронирование видно в админк�
     const slot = await findFreeSlot('meeting-15');
 
     await page.goto('/book/meeting-15');
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     await page.getByRole('button', { name: new RegExp(`${slot.timeText} - `) }).click();
@@ -115,7 +115,7 @@ test.describe('E2E-BOOK-04. Забронированный слот станов
     expect(res.status()).toBe(201);
 
     await page.goto('/book/meeting-15');
-    const dayButton = page.locator('button').filter({ hasText: new RegExp(`^${slot.dayNumber}\\b`) });
+    const dayButton = page.getByRole('button', { name: new RegExp(`^${slot.dayNumber}\\s`) });
     await dayButton.click();
 
     const busySlot = page.getByRole('button', { name: new RegExp(`${slot.timeText} - .*Занято`, 's') });
