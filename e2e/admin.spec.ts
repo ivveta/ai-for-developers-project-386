@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { resetDb, seedDefaults, createBooking, findFreeSlot } from './helpers';
+import { resetDb, seedDefaults, createBooking, findFreeSlot, tomorrowMsk, dayAfterTomorrowMsk } from './helpers';
 
 test.describe('E2E-ADM-01. Админ-панель: хаб с переходами', () => {
   test('две карточки-ссылки с переходами', async ({ page }) => {
@@ -72,8 +72,11 @@ test.describe('E2E-ADM-04. Просмотр предстоящих встреч'
   });
 
   test('список встреч: сортировка, данные', async ({ page }) => {
-    const slot1 = await findFreeSlot('meeting-15');
-    const slot2 = await findFreeSlot('meeting-30');
+    // Слоты на разных днях (завтра и послезавтра): пересечение интервалов
+    // запрещено глобально (Р7), а первый свободный слот сегодня — на границе
+    // «сейчас» и может успеть стать прошлым к моменту отправки.
+    const slot1 = await findFreeSlot('meeting-15', { date: tomorrowMsk() });
+    const slot2 = await findFreeSlot('meeting-30', { date: dayAfterTomorrowMsk() });
 
     await createBooking({
       eventTypeId: 'meeting-15',
@@ -81,13 +84,13 @@ test.describe('E2E-ADM-04. Просмотр предстоящих встреч'
       guestName: 'Иван Петров',
       guestEmail: 'ivan@example.com',
       notes: 'Хочу обсудить интеграцию',
-    });
+    }).then((res) => expect(res.status).toBe(201));
     await createBooking({
       eventTypeId: 'meeting-30',
       startAt: slot2.startAt,
       guestName: 'Мария Иванова',
       guestEmail: 'maria@example.com',
-    });
+    }).then((res) => expect(res.status).toBe(201));
 
     await page.goto('/admin/bookings');
     await expect(page.getByText('Предстоящие встречи')).toBeVisible();

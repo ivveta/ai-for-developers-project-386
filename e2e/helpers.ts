@@ -54,16 +54,30 @@ export function todayMsk(): string {
 }
 
 /**
- * Завтрашний день в Europe/Moscow в формате YYYY-MM-DD.
+ * День со сдвигом от сегодня в Europe/Moscow в формате YYYY-MM-DD.
  */
-export function tomorrowMsk(): string {
+function mskDateOffset(days: number): string {
   const now = new Date();
   const msk = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
-  msk.setDate(msk.getDate() + 1);
+  msk.setDate(msk.getDate() + days);
   const y = msk.getFullYear();
   const m = String(msk.getMonth() + 1).padStart(2, '0');
   const d = String(msk.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
+}
+
+/**
+ * Завтрашний день в Europe/Moscow в формате YYYY-MM-DD.
+ */
+export function tomorrowMsk(): string {
+  return mskDateOffset(1);
+}
+
+/**
+ * Послезавтрашний день в Europe/Moscow в формате YYYY-MM-DD.
+ */
+export function dayAfterTomorrowMsk(): string {
+  return mskDateOffset(2);
 }
 
 /**
@@ -73,11 +87,16 @@ export function tomorrowMsk(): string {
  */
 export async function findFreeSlot(
   eventTypeId: string,
+  opts?: { date?: string },
 ): Promise<{ date: string; startAt: string; dayNumber: number; timeText: string }> {
   const res = await fetch(`${API_BASE}/api/event-types/${eventTypeId}/slots`);
   const body = await res.json() as { data: { days: Array<{ date: string; slots: Array<{ start: string; status: string }> }> } };
 
   for (const day of body.data.days) {
+    // Первый свободный слот сегодня всегда на границе «сейчас»: к моменту отправки
+    // формы он становится прошлым → 422. Берём слот с завтра или позже.
+    if (day.date === todayMsk()) continue;
+    if (opts?.date && day.date !== opts.date) continue;
     const free = day.slots.find((s) => s.status === 'free');
     if (free) {
       // startAt в формате "2026-08-18T09:00:00+03:00" — время уже в MSK
