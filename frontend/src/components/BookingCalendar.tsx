@@ -91,11 +91,14 @@ export function BookingCalendar({
         {weeks.flat().map((day) => {
           const date = toDateString(day);
           const daySlots = byDate.get(date);
+          // Ячейки соседних месяцев не активируем, даже если дата внутри окна:
+          // они станут доступны после навигации «←»/«→» на свой месяц.
+          const available = Boolean(daySlots) && day.getUTCMonth() === month.getUTCMonth();
           const selected = date === selectedDate;
           return (
             <UnstyledButton
               key={date}
-              disabled={!daySlots}
+              disabled={!available}
               onClick={() => onSelect(date)}
               aria-pressed={selected}
               style={{
@@ -104,7 +107,7 @@ export function BookingCalendar({
                   selected ? 'var(--mantine-color-orange-6)' : 'var(--mantine-color-gray-3)'
                 }`,
                 background: selected ? 'var(--mantine-color-orange-0)' : undefined,
-                opacity: daySlots ? 1 : 0.45,
+                opacity: available ? 1 : 0.45,
                 padding: '6px 0',
                 textAlign: 'center',
               }}
@@ -112,11 +115,11 @@ export function BookingCalendar({
               <Box
                 fz="sm"
                 fw={selected ? 700 : 400}
-                c={selected ? 'orange.7' : daySlots ? 'dark.8' : 'gray.6'}
+                c={selected ? 'orange.7' : available ? 'dark.8' : 'gray.6'}
               >
                 {day.getUTCDate()}
               </Box>
-              {daySlots && (
+              {available && daySlots && (
                 <Box fz={10} c="gray.6">
                   {formatFreeCount(daySlots.freeCount)}
                 </Box>
