@@ -51,3 +51,14 @@ make frontend    # фронтенд на http://localhost:5173
 | `npm run contract` | пересобрать контракт: TypeSpec → `openapi.yaml` → типы TS |
 | `npm run build` | сборка всех пакетов |
 | `npm test` | тесты всех пакетов (интеграционные — при поднятом Docker) |
+
+## Коммиты и релизы
+
+Сообщения коммитов — по [Conventional Commits](https://www.conventionalcommits.org/ru/):
+`feat:` — новая функциональность (minor), `fix:` — исправление (patch),
+`feat!:` или `BREAKING CHANGE:` в теле — ломающее изменение (major).
+Формат проверяется хуком commitlint локально при каждом коммите.
+
+После мерджа в `main` [release-please](https://github.com/googleapis/release-please-action)
+сам ведёт Release PR с обновлёнными `CHANGELOG.md` и версией пакета; мёрдж этого
+PR ставит тег и создаёт GitHub Release.
