@@ -42,9 +42,9 @@
 - Copy исходников (`api/`, `backend/`, `frontend/`, `tsconfig.base.json`).
 - `ENV VITE_API_URL=""` перед сборкой → относительные URL, same-origin.
 - `RUN npm run build` (workspaces собираются топологически: api → backend/frontend).
+- `ENV PORT=3000` + `EXPOSE 3000`: дефолтный порт объявлен в образе; платформа
+  переопределяет его переменной `PORT` (рантайм читает её в `backend/src/config.ts`).
 - `CMD ["node", "backend/dist/server.js"]`.
-
-`EXPOSE` не нужен: платформа задаёт порт переменной `PORT`.
 
 ## Шаг 2. Мягкий старт без БД ✅
 

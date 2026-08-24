@@ -17,4 +17,7 @@ COPY tsconfig.base.json ./
 ENV VITE_API_URL=""
 RUN npm run build
 
+ENV PORT=3000
+EXPOSE 3000
+
 CMD ["node", "backend/dist/server.js"]
