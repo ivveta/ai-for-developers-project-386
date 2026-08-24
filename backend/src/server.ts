@@ -13,9 +13,13 @@ import { buildApp } from './http/app.js';
 const staticDir = fileURLToPath(new URL('../../frontend/dist', import.meta.url));
 
 async function main(): Promise<void> {
-  await runMigrations();
   const pool = createPool();
-  await runSeed(pool);
+  try {
+    await runMigrations();
+    await runSeed(pool);
+  } catch (error) {
+    console.error('Database init failed, continuing without database:', error);
+  }
   const app = buildApp({ pool, staticDir });
   await app.listen({ port: config.port, host: '0.0.0.0' });
 }
