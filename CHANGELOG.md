@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/ivveta/ai-for-developers-project-386/compare/v1.0.1...v1.1.0) (2026-08-24)
+
+
+### Features
+
+* declare default PORT in Dockerfile ([b812341](https://github.com/ivveta/ai-for-developers-project-386/commit/b812341876639d045ebfcf0ee5bcba3593c9c445))
+
 ## [1.0.1](https://github.com/ivveta/ai-for-developers-project-386/compare/v1.0.0...v1.0.1) (2026-08-24)
 
 
