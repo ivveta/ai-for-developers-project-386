@@ -1,6 +1,10 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/ivveta/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/ivveta/ai-for-developers-project-386/actions)
 
+## Демо
+
+Приложение доступно по адресу: https://ai-for-developers-project-386-tchb.onrender.com
+
 ## Запуск локально
 
 Требования: Node.js 20+, npm и Docker.
